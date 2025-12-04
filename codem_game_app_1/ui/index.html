@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPS Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            -webkit-touch-callout: none !important;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0.8em 1em;
+            overflow-y: auto;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+        }
+
+        
+        .header {
+            text-align: center;
+            margin-top: 2.5em;
+            margin-bottom: 1em;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 0.5em;
+            color: #1d1d1f;
+            letter-spacing: -0.02em;
+        }
+
+        .header .balance {
+            font-size: 0.85em;
+            color: #1d1d1f;
+            font-weight: 600;
+            background: #ffffff;
+            padding: 0.7em 1.2em;
+            border-radius: 1.2em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6em;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.15em 0.4em rgba(0, 0, 0, 0.08);
+        }
+
+        .header .balance-icon {
+            width: 1.8em;
+            height: 1.8em;
+            object-fit: contain;
+        }
+
+ 
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7em;
+            margin-top: auto;
+            padding-bottom: 1.5em;
+        }
+
+        .menu-decoration {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 8em auto 2em;
+            gap: 1.5em;
+        }
+
+        .menu-decoration-row {
+            display: flex;
+            gap: 2.5em;
+            justify-content: center;
+        }
+
+        .menu-decoration-icon {
+            width: 4.5em;
+            height: 4.5em;
+            object-fit: contain;
+            filter: drop-shadow(0 0.3em 0.8em rgba(0, 0, 0, 0.15));
+        }
+
+        /* Rock icon - Float up and down */
+        .menu-decoration-row:nth-child(1) .menu-decoration-icon {
+            animation: floatRock 3s ease-in-out infinite;
+        }
+
+        /* Paper icon - Sway left and right */
+        .menu-decoration-row:nth-child(2) .menu-decoration-icon:nth-child(1) {
+            animation: swayPaper 4s ease-in-out infinite;
+        }
+
+        /* Scissors icon - Rotate and float */
+        .menu-decoration-row:nth-child(2) .menu-decoration-icon:nth-child(2) {
+            animation: rotateScissors 5s ease-in-out infinite;
+        }
+
+        @keyframes floatRock {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-1em) scale(1.05);
+            }
+        }
+
+        @keyframes swayPaper {
+            0%, 100% {
+                transform: translateX(0) rotate(0deg);
+            }
+            25% {
+                transform: translateX(-0.5em) rotate(-5deg);
+            }
+            75% {
+                transform: translateX(0.5em) rotate(5deg);
+            }
+        }
+
+        @keyframes rotateScissors {
+            0%, 100% {
+                transform: rotate(0deg) translateY(0);
+            }
+            25% {
+                transform: rotate(-10deg) translateY(-0.5em);
+            }
+            50% {
+                transform: rotate(0deg) translateY(-1em);
+            }
+            75% {
+                transform: rotate(10deg) translateY(-0.5em);
+            }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9em;
+            border: none;
+            border-radius: 0.7em;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: #fafafa;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: #fafafa;
+        }
+
+        .btn-bot {
+            background: #1d1d1f;
+            color: #ffffff;
+            border: 0.08em solid #1d1d1f;
+            box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-bot:hover {
+            background: #2d2d2f;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: #ffffff;
+            border: 0.08em solid #ff3b30;
+            box-shadow: 0 0.15em 0.5em rgba(255, 59, 48, 0.25);
+        }
+
+        .btn-danger:hover {
+            background: #ff5247;
+        }
+
+        .btn-back {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 0.08em solid #d2d2d7;
+        }
+
+        .btn-back:hover {
+            background: #e5e5e7;
+        }
+
+ 
+        .input-group {
+            margin-bottom: 0.8em;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8em;
+            margin-bottom: 0.4em;
+            color: #6e6e73;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.8em;
+            border: 0.08em solid #d2d2d7;
+            border-radius: 0.6em;
+            font-size: 0.9em;
+            background: #ffffff;
+            color: #1d1d1f;
+            transition: all 0.2s ease;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+
+        .input-group input::placeholder {
+            color: #86868b;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 0.2em rgba(0, 122, 255, 0.1);
+        }
+
+        .bet-slider-container {
+            width: 100%;
+        }
+
+        .bet-amount-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8em;
+        }
+
+        .bet-amount-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #007aff;
+        }
+
+        .btn-max {
+            padding: 0.4em 1em;
+            background: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.6em;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-max:hover {
+            background: #0051d5;
+        }
+
+        .bet-slider {
+            width: 100%;
+            height: 0.4em;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, #007aff 0%, #007aff var(--slider-percent), #d2d2d7 var(--slider-percent), #d2d2d7 100%);
+            border-radius: 0.2em;
+            outline: none;
+            margin: 1em 0;
+        }
+
+        .bet-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.5em;
+            height: 1.5em;
+            background: #007aff;
+            border: 0.15em solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .bet-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0.2em 0.5em rgba(0, 122, 255, 0.4);
+        }
+
+        .bet-slider::-moz-range-thumb {
+            width: 1.5em;
+            height: 1.5em;
+            background: #007aff;
+            border: 0.15em solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .bet-slider::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0.2em 0.5em rgba(0, 122, 255, 0.4);
+        }
+
+        .bet-range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: #86868b;
+            margin-top: 0.3em;
+        }
+
+        .input-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231d1d1f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8em center;
+            padding-right: 2.5em;
+        }
+
+        .input-group select option {
+            background: #ffffff;
+            color: #1d1d1f;
+        }
+
+        
+        .lobby-info {
+            background: #ffffff;
+            border-radius: 0.8em;
+            padding: 0.9em;
+            margin-bottom: 0.8em;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.05);
+        }
+
+        .lobby-info .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5em;
+            padding: 0.3em 0;
+        }
+
+        .lobby-info .row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .lobby-info .label {
+            color: #6e6e73;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .lobby-info .value {
+            font-weight: 600;
+            font-size: 0.8em;
+            color: #1d1d1f;
+        }
+
+        
+        .players-list {
+            background: #ffffff;
+            border-radius: 0.8em;
+            padding: 0.9em;
+            margin-bottom: 0.8em;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.05);
+        }
+
+        .players-list h3 {
+            font-size: 0.85em;
+            margin-bottom: 0.7em;
+            text-align: center;
+            color: #6e6e73;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .player-item {
+            background: #f5f5f7;
+            padding: 0.7em;
+            border-radius: 0.6em;
+            margin-bottom: 0.5em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 0.08em solid #e5e5e7;
+        }
+
+        .player-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .player-name {
+            font-weight: 500;
+            font-size: 0.85em;
+            color: #1d1d1f;
+        }
+
+        .player-status {
+            font-size: 0.7em;
+            padding: 0.3em 0.7em;
+            border-radius: 0.8em;
+            background: #e5e5e7;
+            color: #6e6e73;
+            font-weight: 600;
+        }
+
+        .player-status.ready {
+            background: #34c759;
+            color: #ffffff;
+        }
+
+        
+        .game-choices {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.6em;
+            margin-bottom: 1em;
+            margin-top: 0.5em;
+        }
+
+        .choice-btn {
+            flex: 1;
+            aspect-ratio: 1;
+            border: 0.12em solid #d2d2d7;
+            border-radius: 0.8em;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8em 0.5em;
+            box-shadow: 0 0.15em 0.4em rgba(0, 0, 0, 0.08);
+        }
+
+        .choice-btn:hover {
+            background: #fafafa;
+            transform: translateY(-0.2em);
+            box-shadow: 0 0.3em 0.8em rgba(0, 0, 0, 0.12);
+        }
+
+        .choice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .choice-btn.selected {
+            background: #007aff;
+            border-color: #007aff;
+            box-shadow: 0 0.3em 1em rgba(0, 122, 255, 0.4);
+        }
+
+        .choice-btn.selected .choice-label {
+            color: #ffffff;
+        }
+
+        .choice-img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            margin-bottom: 0.3em;
+        }
+
+        .choice-label {
+            font-size: 0.65em;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        
+        .game-result {
+            background: #ffffff;
+            border-radius: 0.8em;
+            padding: 1em;
+            margin-bottom: 1em;
+            text-align: center;
+            border: 0.08em solid #d2d2d7;
+            box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.08);
+        }
+
+        .game-result h2 {
+            font-size: 1.2em;
+            margin-bottom: 0.8em;
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .game-result.win {
+            background: linear-gradient(135deg, #d4f1dd 0%, #e8f8ec 100%);
+            border-color: #34c759;
+        }
+
+        .game-result.lose {
+            background: linear-gradient(135deg, #ffe5e5 0%, #fff0f0 100%);
+            border-color: #ff3b30;
+        }
+
+        .game-result.draw {
+            background: linear-gradient(135deg, #f5f5f7 0%, #fafafa 100%);
+            border-color: #d2d2d7;
+        }
+
+        .result-choices {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 1em;
+        }
+
+        .result-choice {
+            text-align: center;
+            flex: 1;
+        }
+
+        .result-choice-img {
+            width: 3.5em;
+            height: 3.5em;
+            object-fit: contain;
+            margin: 0 auto 0.3em;
+        }
+
+        .result-choice-name {
+            font-size: 0.75em;
+            color: #6e6e73;
+            font-weight: 500;
+        }
+
+        .vs-text {
+            font-size: 1.3em;
+            font-weight: 700;
+            flex: 0.5;
+            color: #6e6e73;
+        }
+
+        .result-message {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 0.5em;
+            color: #1d1d1f;
+        }
+
+        .result-amount {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+
+        .result-amount.positive {
+            color: #34c759;
+        }
+
+        .result-amount.negative {
+            color: #ff3b30;
+        }
+
+        
+        .loading {
+            text-align: center;
+            padding: 2em;
+        }
+
+        .spinner {
+            width: 2em;
+            height: 2em;
+            border: 0.15em solid #e5e5e7;
+            border-top-color: #1d1d1f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1em;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        
+        .waiting-msg {
+            text-align: center;
+            padding: 1.2em;
+            font-size: 0.9em;
+            color: #6e6e73;
+        }
+
+        .waiting-msg .spinner {
+            margin-bottom: 0.8em;
+        }
+
+        
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-auto {
+            margin-top: auto;
+        }
+
+        
+        .section-title {
+            font-size: 0.85em;
+            color: #6e6e73;
+            font-weight: 600;
+            margin-bottom: 0.8em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        
+        .content-wrapper {
+            max-width: 90%;
+            margin: 0 auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="container">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <div id="app" class="container" style="display: none;">
+        <div class="header">
+            <h1>Rock Paper Scissors</h1>
+            <div class="balance">
+                <img src="nui://codem_game_app_1/ui/icon.svg" alt="icon" class="balance-icon">
+                <span id="balance">$0</span>
+            </div>
+        </div>
+
+
+        <div id="screenMenu" class="screen active">
+            <div class="menu-decoration">
+                <div class="menu-decoration-row">
+                    <img src="nui://codem_game_app_1/ui/fist.png" alt="Rock" class="menu-decoration-icon">
+                </div>
+                <div class="menu-decoration-row">
+                    <img src="nui://codem_game_app_1/ui/hand-paper.png" alt="Paper" class="menu-decoration-icon">
+                    <img src="nui://codem_game_app_1/ui/scissors.png" alt="Scissors" class="menu-decoration-icon">
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="showCreateLobby()">Create New Lobby</button>
+                <button class="btn btn-secondary" onclick="showJoinLobby()">Join Lobby</button>
+                
+            </div>
+        </div>
+
+
+        <div id="screenCreateLobby" class="screen">
+            <div class="content-wrapper" style="margin-top: auto; padding-bottom: 2em;">
+                <div class="input-group">
+                    <label>Bet Amount</label>
+                    <div class="bet-slider-container">
+                        <div class="bet-amount-display">
+                            <span class="bet-amount-value" id="createBetDisplay">$0</span>
+                            <button class="btn-max" onclick="setCreateBetMax()">MAX</button>
+                        </div>
+                        <input type="range" id="createBetSlider" class="bet-slider" min="0" max="1000" value="0" step="10" style="--slider-percent: 0%">
+                        <div class="bet-range-labels">
+                            <span>$0</span>
+                            <span id="createBetMax">$1000</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="createLobby()">Create Lobby</button>
+                <button class="btn btn-back mt-auto" style="margin-top: 1em;" onclick="showScreen('screenMenu')">Back</button>
+            </div>
+        </div>
+
+        
+        <div id="screenJoinLobby" class="screen">
+            <div class="content-wrapper" style="margin-top: auto; padding-bottom: 2em;">
+                <div class="input-group">
+                    <label>Lobby ID</label>
+                    <input type="number" id="joinLobbyId" placeholder="Enter lobby ID">
+                </div>
+                <button class="btn btn-primary" onclick="joinLobby()">Join Lobby</button>
+                <button class="btn btn-back mt-auto" style="margin-top: 1em;" onclick="showScreen('screenMenu')">Back</button>
+            </div>
+        </div>
+
+        
+        <div id="screenPlayBot" class="screen">
+            <div class="content-wrapper" style="margin-top: auto; padding-bottom: 2em;">
+                <div class="input-group">
+                    <label>Difficulty Level</label>
+                    <select id="botDifficulty">
+                        <option value="easy">Easy - Random</option>
+                        <option value="medium">Medium - Smart AI</option>
+                        <option value="impossible">Impossible - Unbeatable</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Bet Amount</label>
+                    <div class="bet-slider-container">
+                        <div class="bet-amount-display">
+                            <span class="bet-amount-value" id="botBetDisplay">$0</span>
+                            <button class="btn-max" onclick="setBotBetMax()">MAX</button>
+                        </div>
+                        <input type="range" id="botBetSlider" class="bet-slider" min="0" max="1000" value="0" step="10" style="--slider-percent: 0%">
+                        <div class="bet-range-labels">
+                            <span>$0</span>
+                            <span id="botBetMax">$1000</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-bot" onclick="playBot()">Start Game</button>
+                <button class="btn btn-back mt-auto" style="margin-top: 1em;" onclick="showScreen('screenMenu')">Back</button>
+            </div>
+        </div>
+
+       
+        <div id="screenLobby" class="screen">
+            <div class="content-wrapper">
+                <div class="lobby-info">
+                    <div class="row">
+                        <span class="label">Lobby ID</span>
+                        <span class="value" id="lobbyId">-</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Bet Amount</span>
+                        <span class="value">$<span id="lobbyBet">0</span></span>
+                    </div>
+                </div>
+
+                <div class="players-list">
+                    <h3>Players</h3>
+                    <div id="playersList"></div>
+                </div>
+
+                <div id="lobbyWaiting" class="waiting-msg">
+                    <div class="spinner"></div>
+                    <p>Waiting for opponent...</p>
+                </div>
+
+                <button id="btnReady" class="btn btn-primary" onclick="setReady()" style="display: none; margin-top: 1em;">Ready</button>
+                <button class="btn btn-danger mt-auto" style="margin-top: 1em;" onclick="leaveLobby()">Leave</button>
+            </div>
+        </div>
+
+        <div id="screenGame" class="screen">
+            <div class="content-wrapper">
+                <div class="lobby-info">
+                    <div class="row">
+                        <span class="label">Bet Amount</span>
+                        <span class="value">$<span id="gameBet">0</span></span>
+                    </div>
+                    <div class="row" id="botDifficultyRow" style="display: none;">
+                        <span class="label">Opponent</span>
+                        <span class="value" id="gameBotDifficulty">Bot</span>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Choose Your Move</h3>
+
+                <div class="game-choices">
+                    <button class="choice-btn" onclick="makeChoice('rock')" id="btnRock">
+                        <img src="nui://codem_game_app_1/ui/fist.png" alt="Rock" class="choice-img">
+                        <span class="choice-label">Rock</span>
+                    </button>
+                    <button class="choice-btn" onclick="makeChoice('paper')" id="btnPaper">
+                        <img src="nui://codem_game_app_1/ui/hand-paper.png" alt="Paper" class="choice-img">
+                        <span class="choice-label">Paper</span>
+                    </button>
+                    <button class="choice-btn" onclick="makeChoice('scissors')" id="btnScissors">
+                        <img src="nui://codem_game_app_1/ui/scissors.png" alt="Scissors" class="choice-img">
+                        <span class="choice-label">Scissors</span>
+                    </button>
+                </div>
+
+                <div id="waitingOpponent" class="waiting-msg" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Waiting for opponent...</p>
+                </div>
+            </div>
+        </div>
+
+     
+        <div id="screenResult" class="screen">
+            <div class="content-wrapper">
+                <div id="resultContainer" class="game-result">
+                    <h2 id="resultTitle">Game Result</h2>
+                    <div class="result-choices">
+                        <div class="result-choice">
+                            <img src="nui://codem_game_app_1/ui/fist.png" alt="Rock" class="result-choice-img" id="resultPlayer1Icon">
+                            <div class="result-choice-name" id="resultPlayer1Name">You</div>
+                        </div>
+                        <div class="vs-text">VS</div>
+                        <div class="result-choice">
+                            <img src="nui://codem_game_app_1/ui/hand-paper.png" alt="Paper" class="result-choice-img" id="resultPlayer2Icon">
+                            <div class="result-choice-name" id="resultPlayer2Name">Opponent</div>
+                        </div>
+                    </div>
+                    <div class="result-message" id="resultMessage">You Win!</div>
+                    <div class="result-amount" id="resultAmount">+$100</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+                <button class="btn btn-back mt-auto" style="margin-top: 1em;" onclick="backToMenu()">Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerData = null;
+        let currentLobby = null;
+        let pendingCallbacks = {};
+        let myPlayerId = null;
+        let playerMoney = 0;
+        let isBotGame = false;
+        let botDifficulty = 'easy';
+        let botBet = 0;
+        let myChoice = null;
+        let pollingInterval = null;
+
+        const choiceImages = {
+            rock: 'nui://codem_game_app_1/ui/fist.png',
+            paper: 'nui://codem_game_app_1/ui/hand-paper.png',
+            scissors: 'nui://codem_game_app_1/ui/scissors.png'
+        };
+
+        // Prevent context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Prevent text selection completely
+        document.addEventListener('selectstart', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+
+        // Prevent drag selection
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+
+       
+        function generateCallbackId() {
+            return 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            if (!data || !data.type) return;
+
+            switch(data.type) {
+                case 'mphone:init':
+                    playerData = data.player;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('app').style.display = 'flex';
+                    loadPlayerInfo();
+                    break;
+
+                case 'appOpened':
+                    loadPlayerInfo();
+                    break;
+
+                case 'mphone:callback:response':
+                    const callback = pendingCallbacks[data.callbackId];
+                    if (callback) {
+                        callback(data.result);
+                        delete pendingCallbacks[data.callbackId];
+                    }
+                    break;
+
+                case 'broadcast':
+                    handleBroadcast(data.payload);
+                    break;
+            }
+        });
+
+        
+        function sendCallback(action, payload, toServer = true) {
+            return new Promise((resolve) => {
+                const callbackId = generateCallbackId();
+                pendingCallbacks[callbackId] = resolve;
+
+                window.parent.postMessage({
+                    type: 'mphone:callback',
+                    action: action,
+                    payload: payload || {},
+                    callbackId: callbackId,
+                    server: toServer
+                }, '*');
+
+                setTimeout(() => {
+                    if (pendingCallbacks[callbackId]) {
+                        resolve({ success: false, error: 'Timeout' });
+                        delete pendingCallbacks[callbackId];
+                    }
+                }, 10000);
+            });
+        }
+
+        function handleBroadcast(payload) {
+            if (!payload) return;
+
+            switch(payload.type) {
+                case 'playerJoined':
+                    if (payload.data.lobby) {
+                        currentLobby = payload.data.lobby;
+                        updateLobbyUI();
+                    }
+                    break;
+
+                case 'playerLeft':
+                    loadPlayerInfo();
+                    break;
+
+                case 'playerReady':
+                    if (payload.data.allReady) {
+                        showScreen('screenGame');
+                        if (currentLobby) {
+                            document.getElementById('gameBet').textContent = currentLobby.bet;
+                        }
+                    }
+                    break;
+
+                case 'choiceMade':
+                    document.getElementById('waitingOpponent').style.display = 'block';
+                    break;
+
+                case 'gameFinished':
+                    showResult(payload.data);
+                    break;
+
+                case 'gameReset':
+                    showScreen('screenLobby');
+                    loadPlayerInfo();
+                    break;
+            }
+        }
+
+
+        async function loadPlayerInfo() {
+            const result = await sendCallback('getPlayerInfo');
+
+            if (result.success) {
+                playerMoney = result.money;
+                document.getElementById('balance').textContent = '$' + result.money.toLocaleString();
+
+                // Update slider max values
+                updateSliderMaxValues();
+
+                if (result.currentLobby) {
+                    currentLobby = result.currentLobby;
+
+                    // Check if game has finished and show results
+                    if (currentLobby.status === 'finished' && currentLobby.gameResult) {
+                        stopPolling();
+                        showResult(currentLobby.gameResult);
+                        return;
+                    }
+
+                    // Start polling if we're in a lobby
+                    if (!pollingInterval) {
+                        startPolling();
+                    }
+
+                    showScreen('screenLobby');
+                    updateLobbyUI();
+                } else {
+                    stopPolling();
+                }
+            }
+        }
+
+        function updateSliderMaxValues() {
+            // Update Create Lobby slider
+            const createSlider = document.getElementById('createBetSlider');
+            const createMaxLabel = document.getElementById('createBetMax');
+            createSlider.max = playerMoney;
+            createMaxLabel.textContent = '$' + playerMoney.toLocaleString();
+
+            // Update Bot slider
+            const botSlider = document.getElementById('botBetSlider');
+            const botMaxLabel = document.getElementById('botBetMax');
+            botSlider.max = playerMoney;
+            botMaxLabel.textContent = '$' + playerMoney.toLocaleString();
+        }
+
+        function updateCreateBetSlider() {
+            const slider = document.getElementById('createBetSlider');
+            const display = document.getElementById('createBetDisplay');
+            const value = parseInt(slider.value);
+            display.textContent = '$' + value.toLocaleString();
+
+            // Update slider color gradient
+            const percent = (value / slider.max) * 100;
+            slider.style.setProperty('--slider-percent', percent + '%');
+        }
+
+        function updateBotBetSlider() {
+            const slider = document.getElementById('botBetSlider');
+            const display = document.getElementById('botBetDisplay');
+            const value = parseInt(slider.value);
+            display.textContent = '$' + value.toLocaleString();
+
+            // Update slider color gradient
+            const percent = (value / slider.max) * 100;
+            slider.style.setProperty('--slider-percent', percent + '%');
+        }
+
+        function setCreateBetMax() {
+            const slider = document.getElementById('createBetSlider');
+            slider.value = playerMoney;
+            updateCreateBetSlider();
+        }
+
+        function setBotBetMax() {
+            const slider = document.getElementById('botBetSlider');
+            slider.value = playerMoney;
+            updateBotBetSlider();
+        }
+
+        // Initialize sliders when document loads
+        window.addEventListener('load', function() {
+            const createSlider = document.getElementById('createBetSlider');
+            createSlider.addEventListener('input', updateCreateBetSlider);
+
+            const botSlider = document.getElementById('botBetSlider');
+            botSlider.addEventListener('input', updateBotBetSlider);
+        });
+
+        function startPolling() {
+            if (pollingInterval) return; // Already polling
+
+            // Poll every 2 seconds
+            pollingInterval = setInterval(async () => {
+                if (!isBotGame && currentLobby) {
+                    const result = await sendCallback('getPlayerInfo');
+
+                    if (result.success && result.currentLobby) {
+                        const oldStatus = currentLobby.status;
+                        const newStatus = result.currentLobby.status;
+
+                        currentLobby = result.currentLobby;
+
+                        // Auto-start game if status is 'playing' and we're still in lobby screen
+                        const currentScreen = document.querySelector('.screen.active').id;
+                        if (newStatus === 'playing' && currentScreen === 'screenLobby') {
+                            showScreen('screenGame');
+                            document.getElementById('gameBet').textContent = currentLobby.bet;
+                            document.getElementById('botDifficultyRow').style.display = 'none';
+                        }
+
+                        // Check if all players are ready
+                        if (currentScreen === 'screenLobby' && currentLobby.players.length >= 2) {
+                            const allReady = currentLobby.players.every(p => p.ready);
+                            if (allReady && newStatus === 'waiting') {
+                                showScreen('screenGame');
+                                document.getElementById('gameBet').textContent = currentLobby.bet;
+                                document.getElementById('botDifficultyRow').style.display = 'none';
+                            }
+                        }
+
+                        // Check if game finished
+                        if (newStatus === 'finished' && currentScreen === 'screenGame') {
+                            stopPolling();
+                            if (currentLobby.gameResult) {
+                                showResult(currentLobby.gameResult);
+                            }
+                            return;
+                        }
+
+                        updateLobbyUI();
+                    } else if (!result.currentLobby) {
+                        stopPolling();
+                        showScreen('screenMenu');
+                    }
+                }
+            }, 2000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+    
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+            }
+        }
+
+       
+        function showCreateLobby() {
+            isBotGame = false;
+            const slider = document.getElementById('createBetSlider');
+            slider.value = 0;
+            updateCreateBetSlider();
+            showScreen('screenCreateLobby');
+        }
+
+
+        function showJoinLobby() {
+            isBotGame = false;
+            showScreen('screenJoinLobby');
+        }
+
+        function showPlayBot() {
+            isBotGame = true;
+            const slider = document.getElementById('botBetSlider');
+            slider.value = 0;
+            updateBotBetSlider();
+            showScreen('screenPlayBot');
+        }
+
+
+        async function createLobby() {
+            const betAmount = parseInt(document.getElementById('createBetSlider').value) || 0;
+
+            if (betAmount < 0) {
+                showNotification('Invalid bet amount', 'error');
+                return;
+            }
+
+            if (betAmount > playerMoney) {
+                showNotification('Insufficient funds', 'error');
+                return;
+            }
+
+            const result = await sendCallback('createLobby', { bet: betAmount });
+
+            if (result.success) {
+                currentLobby = result.lobby;
+                startPolling();
+                showScreen('screenLobby');
+                updateLobbyUI();
+            } else {
+                showNotification(result.error || 'Failed to create lobby', 'error');
+            }
+        }
+
+
+        async function joinLobby() {
+            const lobbyId = parseInt(document.getElementById('joinLobbyId').value);
+
+            if (!lobbyId) {
+                showNotification('Please enter a lobby ID', 'error');
+                return;
+            }
+
+            const result = await sendCallback('joinLobby', { lobbyId: lobbyId });
+
+            if (result.success) {
+                currentLobby = result.lobby;
+                startPolling();
+                showScreen('screenLobby');
+                updateLobbyUI();
+            } else {
+                showNotification(result.error || 'Lobby not found', 'error');
+                setTimeout(() => {
+                    showScreen('screenMenu');
+                }, 1500);
+            }
+        }
+
+        
+        function resetGameState() {
+            
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = false;
+            });
+            
+            document.getElementById('waitingOpponent').style.display = 'none';
+        }
+
+      
+        async function playBot() {
+            const difficulty = document.getElementById('botDifficulty').value;
+            const betAmount = parseInt(document.getElementById('botBetSlider').value) || 0;
+
+            if (betAmount < 0) {
+                showNotification('Invalid bet amount', 'error');
+                return;
+            }
+
+            if (betAmount > playerMoney) {
+                showNotification('Insufficient funds', 'error');
+                return;
+            }
+
+            isBotGame = true;
+            botDifficulty = difficulty;
+            botBet = betAmount;
+
+            
+            resetGameState();
+
+            showScreen('screenGame');
+            document.getElementById('gameBet').textContent = betAmount;
+            document.getElementById('botDifficultyRow').style.display = 'flex';
+
+            let difficultyText = 'Bot';
+            if (difficulty === 'easy') {
+                difficultyText = 'Bot (Easy)';
+            } else if (difficulty === 'medium') {
+                difficultyText = 'Bot (Medium)';
+            } else {
+                difficultyText = 'Bot (Impossible)';
+            }
+            document.getElementById('gameBotDifficulty').textContent = difficultyText;
+        }
+
+
+        function updateLobbyUI() {
+            if (!currentLobby) {
+                return;
+            }
+
+            document.getElementById('lobbyId').textContent = currentLobby.id;
+            document.getElementById('lobbyBet').textContent = currentLobby.bet;
+
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+
+            currentLobby.players.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'player-item';
+                div.innerHTML = `
+                    <span class="player-name">${player.name}</span>
+                    <span class="player-status ${player.ready ? 'ready' : 'waiting'}">${player.ready ? 'Ready' : 'Waiting'}</span>
+                `;
+                playersList.appendChild(div);
+            });
+
+            if (currentLobby.players.length >= 2) {
+                document.getElementById('lobbyWaiting').style.display = 'none';
+                document.getElementById('btnReady').style.display = 'block';
+            } else {
+                document.getElementById('lobbyWaiting').style.display = 'block';
+                document.getElementById('btnReady').style.display = 'none';
+            }
+        }
+
+       
+        async function setReady() {
+            const result = await sendCallback('setReady');
+            if (result.success && result.allReady) {
+                
+                resetGameState();
+
+                showScreen('screenGame');
+                if (currentLobby) {
+                    document.getElementById('gameBet').textContent = currentLobby.bet;
+                    document.getElementById('botDifficultyRow').style.display = 'none';
+                }
+            }
+        }
+
+
+        async function leaveLobby() {
+            stopPolling();
+            if (!isBotGame) {
+                await sendCallback('leaveLobby');
+            }
+            currentLobby = null;
+            isBotGame = false;
+            showScreen('screenMenu');
+            loadPlayerInfo();
+        }
+
+
+        function backToMenu() {
+            stopPolling();
+            resetGameState();
+
+            if (!isBotGame && currentLobby) {
+                leaveLobby();
+            } else {
+                currentLobby = null;
+                isBotGame = false;
+                showScreen('screenMenu');
+                loadPlayerInfo();
+            }
+        }
+
+
+        async function makeChoice(choice) {
+            myChoice = choice;
+
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('btn' + choice.charAt(0).toUpperCase() + choice.slice(1)).classList.add('selected');
+
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+
+            if (isBotGame) {
+                document.getElementById('waitingOpponent').style.display = 'block';
+
+                setTimeout(() => {
+                    const botChoice = getBotChoice(choice);
+                    const winner = determineWinner(choice, botChoice);
+
+                    if (botBet > 0) {
+                        if (winner === 'player1') {
+                            playerMoney += botBet;
+                        } else if (winner === 'player2') {
+                            playerMoney -= botBet;
+                        }
+                    }
+
+                    showBotResult({
+                        player1: { name: 'You', choice: choice },
+                        player2: { name: 'Bot', choice: botChoice },
+                        winner: winner,
+                        bet: botBet
+                    });
+
+                    document.getElementById('balance').textContent = '$' + playerMoney.toLocaleString();
+                }, 1500);
+            } else {
+                const result = await sendCallback('makeChoice', { choice: choice });
+
+                if (result.success) {
+                    document.getElementById('waitingOpponent').style.display = 'block';
+                }
+            }
+        }
+
+        
+        function getBotChoice(playerChoice) {
+            if (botDifficulty === 'easy') {
+                const choices = ['rock', 'paper', 'scissors'];
+                return choices[Math.floor(Math.random() * 3)];
+            } else if (botDifficulty === 'medium') {
+                if (Math.random() < 0.5) {
+                    if (playerChoice === 'rock') return 'paper';
+                    if (playerChoice === 'paper') return 'scissors';
+                    if (playerChoice === 'scissors') return 'rock';
+                }
+                const choices = ['rock', 'paper', 'scissors'];
+                return choices[Math.floor(Math.random() * 3)];
+            } else {
+                if (playerChoice === 'rock') return 'paper';
+                if (playerChoice === 'paper') return 'scissors';
+                if (playerChoice === 'scissors') return 'rock';
+            }
+        }
+
+       
+        function determineWinner(choice1, choice2) {
+            if (choice1 === choice2) return 'draw';
+            if ((choice1 === 'rock' && choice2 === 'scissors') ||
+                (choice1 === 'paper' && choice2 === 'rock') ||
+                (choice1 === 'scissors' && choice2 === 'paper')) {
+                return 'player1';
+            }
+            return 'player2';
+        }
+
+
+        function showResult(data) {
+            updateResultUI(data.player1.name, data.player1.choice, data.player2.name, data.player2.choice, data.myResult, data.bet);
+            showScreen('screenResult');
+        }
+
+      
+        function showBotResult(data) {
+            updateResultUI(data.player1.name, data.player1.choice, data.player2.name, data.player2.choice, data.winner, data.bet);
+            showScreen('screenResult');
+        }
+
+
+        function updateResultUI(player1Name, player1Choice, player2Name, player2Choice, myResult, bet) {
+            document.getElementById('resultPlayer1Icon').src = choiceImages[player1Choice];
+            document.getElementById('resultPlayer1Name').textContent = player1Name;
+            document.getElementById('resultPlayer2Icon').src = choiceImages[player2Choice];
+            document.getElementById('resultPlayer2Name').textContent = player2Name;
+
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.classList.remove('win', 'lose', 'draw');
+
+            if (myResult === 'draw') {
+                resultContainer.classList.add('draw');
+                document.getElementById('resultMessage').textContent = "It's a Draw!";
+                document.getElementById('resultAmount').textContent = '$0';
+            } else if (myResult === 'win') {
+                resultContainer.classList.add('win');
+                document.getElementById('resultMessage').textContent = 'You Win!';
+                document.getElementById('resultAmount').textContent = '+$' + bet;
+            } else if (myResult === 'lose') {
+                resultContainer.classList.add('lose');
+                document.getElementById('resultMessage').textContent = 'You Lose!';
+                document.getElementById('resultAmount').textContent = '-$' + bet;
+            }
+        }
+
+
+        async function playAgain() {
+            resetGameState();
+
+            if (isBotGame) {
+                showScreen('screenGame');
+                document.getElementById('gameBet').textContent = botBet;
+                document.getElementById('botDifficultyRow').style.display = 'flex';
+            } else {
+                await sendCallback('resetGame');
+                showScreen('screenLobby');
+                startPolling();
+            }
+        }
+
+       
+        function showNotification(message, type = 'info') {
+            window.parent.postMessage({
+                type: 'mphone:notification',
+                header: 'RPS Game',
+                message: message
+            }, '*');
+        }
+
+       
+        if (window.location.protocol === 'file:' || window.location.hostname === 'localhost') {
+            setTimeout(() => {
+                window.dispatchEvent(new MessageEvent('message', {
+                    data: {
+                        type: 'mphone:init',
+                        player: { phoneNumber: '555-1234' }
+                    }
+                }));
+            }, 500);
+        }
+    </script>
+</body>
+</html>
